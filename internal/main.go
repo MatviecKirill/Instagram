@@ -6,9 +6,9 @@ import (
 	"os"
 )
 
-type Config struct{
-	USERNAME string
-	PASSWORD string
+type Config struct {
+	USERNAME   string
+	PASSWORD   string
 	TARGETUSER string
 }
 
@@ -66,20 +66,25 @@ func getUserFollowers(userName string, insta *goinsta.Instagram, limit ...int) (
 	}
 }
 
-func initConfig() (config Config){
+func initConfig() (config Config) {
 	var USERNAME string
 	var PASSWORD string
 	var TARGETUSER string
 
-	if USERNAME = os.Getenv("USERNAME"); USERNAME == "" {
-		panic(fmt.Sprint("USERNAME UNDEFINED!"))
+	if USERNAME = os.Getenv("INSTAGRAM_USERNAME"); USERNAME == "" {
+		fmt.Print("Enter username: ")
+		fmt.Scan(&USERNAME)
 	}
-	if PASSWORD := os.Getenv("PASSWORD"); PASSWORD == "" {
-		panic(fmt.Sprint("PASSWORD UNDEFINED!"))
+	if PASSWORD = os.Getenv("INSTAGRAM_PASSWORD"); PASSWORD == "" {
+		fmt.Print("Enter password: ")
+		fmt.Scan(&PASSWORD)
 	}
-	if TARGETUSER := os.Getenv("TARGETUSER"); TARGETUSER == "" {
-		panic(fmt.Sprint("TARGETUSER UNDEFINED!"))
+	if TARGETUSER = os.Getenv("INSTAGRAM_TARGETUSER"); TARGETUSER == "" {
+		fmt.Print("Enter target username: ")
+		fmt.Scan(&TARGETUSER)
 	}
+
 	config = Config{USERNAME, PASSWORD, TARGETUSER}
+	fmt.Print("CONFIG INITIALIZED ")
 	return config
 }
