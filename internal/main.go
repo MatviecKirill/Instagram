@@ -26,7 +26,7 @@ func main() {
 	//https://pkg.go.dev/github.com/TheForgotten69/goinsta/v2@v2.6.0
 
 	config := initConfig()
-	if insta, err := login(config); err == nil {
+	if insta, err := login(&config); err == nil {
 		if followersList, err := getUserFlws(config.TARGETUSER, Followers, insta, 200); err == nil {
 			userFollowers = make(map[string][]goinsta.User)
 			userFollowers[config.TARGETUSER] = followersList
@@ -40,8 +40,21 @@ func main() {
 			fmt.Println(err)
 		}
 	} else {
-		fmt.Println(err)
+		fmt.Println("Login", err)
 	}
+}
+
+func getListsDifference(usersList1, usersList2 []goinsta.User) (diffList []goinsta.User) {
+	usersMap := make(map[int64]struct{}, len(usersList2))
+	for _, user := range usersList2 {
+		usersMap[user.ID] = struct{}{}
+	}
+	for _, user := range usersList1 {
+		if _, found := usersMap[user.ID]; !found {
+			diffList = append(diffList, user)
+		}
+	}
+	return diffList
 }
 
 func getUserFlws(targetUser string, fType flwType, insta *goinsta.Instagram, limit ...int) (flws []goinsta.User, err error) {
@@ -73,6 +86,32 @@ func getUserFlws(targetUser string, fType flwType, insta *goinsta.Instagram, lim
 	}
 }
 
+func login(config *Config) (insta *goinsta.Instagram, err error) {
+	if workDir, err := os.Getwd(); err == nil {
+		if insta, err := goinsta.Import(workDir + "\\accounts\\" + config.USERNAME + ".json"); err != nil {
+			insta = goinsta.New(config.USERNAME, config.PASSWORD)
+
+			if err := insta.Login(); err == nil {
+				fmt.Println("Login successfully")
+				if err := insta.Export(workDir + "\\accounts\\" + config.USERNAME + ".json"); err != nil {
+					return nil, err
+				} else {
+					fmt.Println("Login data export successfully")
+				}
+			} else {
+				return nil, err
+			}
+
+			return insta, nil
+		} else {
+			fmt.Println("Login data import successfully")
+			return insta, nil
+		}
+	} else {
+		return nil, err
+	}
+}
+
 func initConfig() (config Config) {
 	var USERNAME string
 	var PASSWORD string
@@ -92,32 +131,6 @@ func initConfig() (config Config) {
 	}
 
 	config = Config{USERNAME, PASSWORD, TARGETUSER}
-	fmt.Println("#Config initialized ")
+	fmt.Println("Config initialized")
 	return config
-}
-
-func login(config Config) (insta *goinsta.Instagram, err error) {
-	if workDir, err := os.Getwd(); err == nil {
-		if insta, err := goinsta.Import(workDir + "\\config\\LoginSettings.json"); err != nil {
-			insta = goinsta.New(config.USERNAME, config.PASSWORD)
-
-			if err := insta.Login(); err == nil {
-				fmt.Println("#Login successfully")
-				if err := insta.Export(workDir + "\\config\\LoginSettings.json"); err != nil {
-					return nil, err
-				} else {
-					fmt.Println("#Login data export successfully")
-				}
-			} else {
-				return nil, err
-			}
-
-			return insta, nil
-		} else {
-			fmt.Println("#Login data import successfully")
-			return insta, nil
-		}
-	} else {
-		return nil, err
-	}
 }
