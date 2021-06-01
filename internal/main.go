@@ -19,8 +19,11 @@ var userFollowers, userFollowings map[string][]goinsta.User
 
 func main() {
 	//https://pkg.go.dev/github.com/TheForgotten69/goinsta/v2@v2.6.0
+	defer db.Close()
+	initDB()
 
 	config := initConfig()
+	return
 	if insta, err := login(&config); err == nil {
 		if followersList, err := getUserFlws(config.TARGETUSER, Followers, insta, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX, 200); err == nil {
 			userFollowers = make(map[string][]goinsta.User)
