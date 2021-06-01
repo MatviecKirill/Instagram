@@ -5,13 +5,8 @@ import (
 	"fmt"
 	"github.com/TheForgotten69/goinsta/v2"
 	"os"
+	"time"
 )
-
-type Config struct {
-	USERNAME   string
-	PASSWORD   string
-	TARGETUSER string
-}
 
 type flwType string
 
@@ -27,13 +22,13 @@ func main() {
 
 	config := initConfig()
 	if insta, err := login(&config); err == nil {
-		if followersList, err := getUserFlws(config.TARGETUSER, Followers, insta, 200); err == nil {
+		if followersList, err := getUserFlws(config.TARGETUSER, Followers, insta, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX, 200); err == nil {
 			userFollowers = make(map[string][]goinsta.User)
 			userFollowers[config.TARGETUSER] = followersList
 		} else {
 			fmt.Println(err)
 		}
-		if followingsList, err := getUserFlws(config.TARGETUSER, Followings, insta, 200); err == nil {
+		if followingsList, err := getUserFlws(config.TARGETUSER, Followings, insta, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX, 200); err == nil {
 			userFollowings = make(map[string][]goinsta.User)
 			userFollowings[config.TARGETUSER] = followingsList
 		} else {
@@ -57,7 +52,7 @@ func getListsDifference(usersList1, usersList2 []goinsta.User) (diffList []goins
 	return diffList
 }
 
-func getUserFlws(targetUser string, fType flwType, insta *goinsta.Instagram, limit ...int) (flws []goinsta.User, err error) {
+func getUserFlws(targetUser string, fType flwType, insta *goinsta.Instagram, delayMin int, delayMax int, limit ...int) (flws []goinsta.User, err error) {
 	if searchResult, err := insta.Search.User(targetUser); err == nil {
 		flwUsers := make([]goinsta.User, 0)
 		var flws *goinsta.Users
@@ -72,6 +67,10 @@ func getUserFlws(targetUser string, fType flwType, insta *goinsta.Instagram, lim
 		if flws != nil {
 			for flws.Next() {
 				flwUsers = append(flwUsers, flws.Users...)
+
+				delay := getRandomNumber(delayMin-getRandomNumber(0, 200), delayMax+getRandomNumber(0, 500))
+				time.Sleep(time.Duration(delay) * time.Millisecond)
+				fmt.Printf("Delay: %v, %v users: %v \n", delay, fType, len(flwUsers))
 
 				if len(limit) != 0 && len(flwUsers) >= limit[0] {
 					return flwUsers, nil
@@ -110,27 +109,4 @@ func login(config *Config) (insta *goinsta.Instagram, err error) {
 	} else {
 		return nil, err
 	}
-}
-
-func initConfig() (config Config) {
-	var USERNAME string
-	var PASSWORD string
-	var TARGETUSER string
-
-	if USERNAME = os.Getenv("INSTAGRAM_USERNAME"); USERNAME == "" {
-		fmt.Print("Enter username: ")
-		fmt.Scan(&USERNAME)
-	}
-	if PASSWORD = os.Getenv("INSTAGRAM_PASSWORD"); PASSWORD == "" {
-		fmt.Print("Enter password: ")
-		fmt.Scan(&PASSWORD)
-	}
-	if TARGETUSER = os.Getenv("INSTAGRAM_TARGETUSER"); TARGETUSER == "" {
-		fmt.Print("Enter target username: ")
-		fmt.Scan(&TARGETUSER)
-	}
-
-	config = Config{USERNAME, PASSWORD, TARGETUSER}
-	fmt.Println("Config initialized")
-	return config
 }
