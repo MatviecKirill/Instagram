@@ -1,6 +1,7 @@
 package stat
 
 import (
+	"errors"
 	"fmt"
 	"github.com/TheForgotten69/goinsta/v2"
 	"os"
@@ -12,18 +13,35 @@ var insta *goinsta.Instagram
 var targetUsers map[string]*goinsta.User
 var usersFollowers, usersFollowings map[string][]goinsta.User
 
-func Init() {
-	defer db.Close()
-	initDB()
+func Init() error {
+	/*defer db.Close()
+	initDB()*/
 
 	config = initConfig()
-	//return
 	if ins, err := login(); err == nil {
 		insta = ins
 		usersFollowers = make(map[string][]goinsta.User)
 		usersFollowings = make(map[string][]goinsta.User)
+		targetUsers = make(map[string]*goinsta.User)
 	} else {
-		fmt.Println("Login", err)
+		return errors.New("Login " + err.Error())
+	}
+	return nil
+}
+
+func GetNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
+	if err := getUserInfo(targetUserName); err == nil {
+		if err := getUserFollowers(targetUserName); err == nil {
+			if err := getUserFollowings(targetUserName); err == nil {
+				return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
+			} else {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	} else {
+		return nil, err
 	}
 }
 
@@ -37,34 +55,41 @@ func getUserInfo(targetUserName string) error {
 }
 
 func getUserFollowers(targetUserName string) error {
-	if followersList, err := getUserFlws(targetUsers[targetUserName].Followers(), 200); err == nil {
-		usersFollowers[targetUserName] = followersList
-		return nil
-	} else {
-		return err
+	if targetUsers[targetUserName] != nil {
+		if followersList, err := getUserFlws(targetUsers[targetUserName].Followers(), targetUsers[targetUserName].FollowerCount, 0); err == nil {
+			usersFollowers[targetUserName] = followersList
+			return nil
+		} else {
+			return err
+		}
 	}
+	return errors.New(targetUserName + " not found")
 }
 
 func getUserFollowings(targetUserName string) error {
-	if followingsList, err := getUserFlws(targetUsers[targetUserName].Following(), 200); err == nil {
-		usersFollowings[targetUserName] = followingsList
-		return nil
-	} else {
-		return err
+	if targetUsers[targetUserName] != nil {
+		if followingsList, err := getUserFlws(targetUsers[targetUserName].Following(), targetUsers[targetUserName].FollowingCount, 0); err == nil {
+			usersFollowings[targetUserName] = followingsList
+			return nil
+		} else {
+			return err
+		}
 	}
+	return errors.New(targetUserName + " not found")
 }
 
-func getUserFlws(users *goinsta.Users, limitFlwsCount ...int) (flwUsers []goinsta.User, err error) {
-	flwUsers = make([]goinsta.User, 0)
+func getUserFlws(users *goinsta.Users, flwCount int, limit ...int) (flwUsers []goinsta.User, err error) {
+	flwUsers = make([]goinsta.User, 0, flwCount)
 
+	fmt.Println("Start loading users")
 	for users.Next() {
 		flwUsers = append(flwUsers, users.Users...)
 
 		delay := getRandomNumber(config.REQUEST_DELAY_MIN-getRandomNumber(0, 200), config.REQUEST_DELAY_MAX+getRandomNumber(0, 500))
 		time.Sleep(time.Duration(delay) * time.Millisecond)
-		fmt.Printf("Delay: %v; users: %v \n", delay, len(flwUsers))
+		fmt.Printf("Delay: %v; Loaded users count: %v \n", delay, len(flwUsers))
 
-		if len(limitFlwsCount) != 0 && len(flwUsers) >= limitFlwsCount[0] {
+		if len(limit) != 0 && len(flwUsers) >= limit[0] {
 			return flwUsers, nil
 		}
 	}

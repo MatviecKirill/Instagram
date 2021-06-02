@@ -1,9 +1,14 @@
 package main
 
-import stat "InstagramStatistic/internal/Stat"
+import (
+	stat "InstagramStatistic/internal/Stat"
+	"fmt"
+)
 
 func main() {
-	stat.Init()
+	if err:= stat.Init(); err == nil{
 
-
+	} else {
+		fmt.Println(err)
+	}
 }
