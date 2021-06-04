@@ -29,7 +29,7 @@ func Init() error {
 	return nil
 }
 
-func GetNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
+func getNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
 	if err := getUserInfo(targetUserName); err == nil {
 		if err := getUserFollowers(targetUserName); err == nil {
 			if err := getUserFollowings(targetUserName); err == nil {

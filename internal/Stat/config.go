@@ -11,13 +11,12 @@ import (
 type Config struct {
 	USERNAME          string
 	PASSWORD          string
-	TARGETUSER        string
 	REQUEST_DELAY_MIN int
 	REQUEST_DELAY_MAX int
 }
 
 func initConfig() (config Config) {
-	var USERNAME, PASSWORD, TARGETUSER string
+	var USERNAME, PASSWORD string
 	var REQUEST_DELAY_MIN, REQUEST_DELAY_MAX int
 
 	if USERNAME = os.Getenv("INSTAGRAM_USERNAME"); USERNAME == "" {
@@ -28,10 +27,7 @@ func initConfig() (config Config) {
 		fmt.Print("Enter password: ")
 		fmt.Scan(&PASSWORD)
 	}
-	if TARGETUSER = os.Getenv("INSTAGRAM_TARGETUSER"); TARGETUSER == "" {
-		fmt.Print("Enter target username: ")
-		fmt.Scan(&TARGETUSER)
-	}
+
 	if REQUEST_DELAY_MIN, _ = strconv.Atoi(os.Getenv("REQUEST_DELAY_MIN")); REQUEST_DELAY_MIN == 0 {
 		REQUEST_DELAY_MIN = getRandomNumber(800, 1100)
 	}
@@ -39,7 +35,7 @@ func initConfig() (config Config) {
 		REQUEST_DELAY_MAX = getRandomNumber(2500, 3500)
 	}
 
-	config = Config{USERNAME, PASSWORD, TARGETUSER, REQUEST_DELAY_MIN, REQUEST_DELAY_MAX}
+	config = Config{USERNAME, PASSWORD, REQUEST_DELAY_MIN, REQUEST_DELAY_MAX}
 	fmt.Println("Config initialized")
 	return config
 }
