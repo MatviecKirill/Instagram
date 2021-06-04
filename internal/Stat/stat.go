@@ -4,20 +4,26 @@ import (
 	"errors"
 	"fmt"
 	"github.com/TheForgotten69/goinsta/v2"
+	"math/rand"
 	"os"
+	"strconv"
 	"time"
 )
 
-var config Config
+var username, password string
+var minDelay, maxDelay int
 var insta *goinsta.Instagram
 var targetUsers map[string]*goinsta.User
 var usersFollowers, usersFollowings map[string][]goinsta.User
 
-func Init() error {
+func Init(username_, password_ string, minDelay_, maxDelay_ int) error {
 	/*defer db.Close()
 	initDB()*/
 
-	config = initConfig()
+	username = username_
+	password = password_
+	minDelay = minDelay_
+	maxDelay = maxDelay_
 	if ins, err := login(); err == nil {
 		insta = ins
 		usersFollowers = make(map[string][]goinsta.User)
@@ -31,14 +37,18 @@ func Init() error {
 
 func getNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
 	if err := getUserInfo(targetUserName); err == nil {
-		if err := getUserFollowers(targetUserName); err == nil {
-			if err := getUserFollowings(targetUserName); err == nil {
-				return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
+		if usersFollowers[targetUserName] == nil && usersFollowings[targetUserName] == nil {
+			if err := getUserFollowers(targetUserName); err == nil {
+				if err := getUserFollowings(targetUserName); err == nil {
+					return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
+				} else {
+					return nil, err
+				}
 			} else {
 				return nil, err
 			}
 		} else {
-			return nil, err
+			return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
 		}
 	} else {
 		return nil, err
@@ -81,15 +91,15 @@ func getUserFollowings(targetUserName string) error {
 func getUserFlws(users *goinsta.Users, flwCount int, limit ...int) (flwUsers []goinsta.User, err error) {
 	flwUsers = make([]goinsta.User, 0, flwCount)
 
-	fmt.Println("Start loading users")
+	fmt.Println("Start loading users. Count: " + strconv.Itoa(flwCount))
 	for users.Next() {
 		flwUsers = append(flwUsers, users.Users...)
 
-		delay := getRandomNumber(config.REQUEST_DELAY_MIN-getRandomNumber(0, 200), config.REQUEST_DELAY_MAX+getRandomNumber(0, 500))
+		delay := getRandomNumber(minDelay-getRandomNumber(0, 200), maxDelay+getRandomNumber(0, 500))
 		time.Sleep(time.Duration(delay) * time.Millisecond)
-		fmt.Printf("Delay: %v; Loaded users count: %v \n", delay, len(flwUsers))
+		fmt.Printf("Delay: %v; Loaded users count: %v/%v \n", delay, len(flwUsers), strconv.Itoa(flwCount))
 
-		if len(limit) != 0 && len(flwUsers) >= limit[0] {
+		if len(limit) != 0 && limit[0] != 0 && len(flwUsers) >= limit[0] {
 			return flwUsers, nil
 		}
 	}
@@ -98,12 +108,12 @@ func getUserFlws(users *goinsta.Users, flwCount int, limit ...int) (flwUsers []g
 
 func login() (insta *goinsta.Instagram, err error) {
 	if workDir, err := os.Getwd(); err == nil {
-		if insta, err := goinsta.Import(workDir + "\\accounts\\" + config.USERNAME + ".json"); err != nil {
-			insta = goinsta.New(config.USERNAME, config.PASSWORD)
+		if insta, err := goinsta.Import(workDir + "\\accounts\\" + username + ".json"); err != nil {
+			insta = goinsta.New(username, password)
 
 			if err := insta.Login(); err == nil {
 				fmt.Println("Login successfully")
-				if err := insta.Export(workDir + "\\accounts\\" + config.USERNAME + ".json"); err != nil {
+				if err := insta.Export(workDir + "\\accounts\\" + username + ".json"); err != nil {
 					return nil, err
 				} else {
 					fmt.Println("Login data export successfully")
@@ -133,4 +143,9 @@ func getListsDifference(usersList1, usersList2 []goinsta.User) (diffList []goins
 		}
 	}
 	return diffList
+}
+
+func getRandomNumber(min, max int) int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(max-min) + min
 }

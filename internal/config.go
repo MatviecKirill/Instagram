@@ -1,14 +1,13 @@
-package stat
+package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"strconv"
-	"time"
 )
 
 type Config struct {
+	TOKEN             string
 	USERNAME          string
 	PASSWORD          string
 	REQUEST_DELAY_MIN int
@@ -16,9 +15,13 @@ type Config struct {
 }
 
 func initConfig() (config Config) {
-	var USERNAME, PASSWORD string
+	var USERNAME, PASSWORD, TOKEN string
 	var REQUEST_DELAY_MIN, REQUEST_DELAY_MAX int
 
+	if TOKEN = os.Getenv("TELEGRAM_TOKEN"); TOKEN == "" {
+		fmt.Println("Telegram token not found")
+		return
+	}
 	if USERNAME = os.Getenv("INSTAGRAM_USERNAME"); USERNAME == "" {
 		fmt.Print("Enter username: ")
 		fmt.Scan(&USERNAME)
@@ -29,18 +32,13 @@ func initConfig() (config Config) {
 	}
 
 	if REQUEST_DELAY_MIN, _ = strconv.Atoi(os.Getenv("REQUEST_DELAY_MIN")); REQUEST_DELAY_MIN == 0 {
-		REQUEST_DELAY_MIN = getRandomNumber(800, 1100)
+		REQUEST_DELAY_MIN = 800
 	}
 	if REQUEST_DELAY_MAX, _ = strconv.Atoi(os.Getenv("REQUEST_DELAY_MAX")); REQUEST_DELAY_MAX == 0 {
-		REQUEST_DELAY_MAX = getRandomNumber(2500, 3500)
+		REQUEST_DELAY_MAX = 3500
 	}
 
-	config = Config{USERNAME, PASSWORD, REQUEST_DELAY_MIN, REQUEST_DELAY_MAX}
+	config = Config{TOKEN, USERNAME, PASSWORD, REQUEST_DELAY_MIN, REQUEST_DELAY_MAX}
 	fmt.Println("Config initialized")
 	return config
-}
-
-func getRandomNumber(min, max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max-min) + min
 }
