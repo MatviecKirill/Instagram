@@ -15,9 +15,9 @@ func main() {
 	config = initConfig()
 	messageChannel = make(chan string)
 
-	if err := stat.Init(config.USERNAME, config.PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
+	if err := stat.Init(config.INSTAGRAM_USERNAME, config.INSTAGRAM_PASSWORD, config.PROXY_URL, config.PROXY_LOGIN,config.PROXY_PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
 		go func() {
-			telegram.Init(config.TOKEN, messageChannel)
+			telegram.Init(config.TELEGRAM_TOKEN, messageChannel)
 		}()
 
 		for {

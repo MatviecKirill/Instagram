@@ -10,25 +10,34 @@ import (
 	"time"
 )
 
-var username, password string
+var username, password, proxyURL, proxyLogin, proxyPassword string
 var minDelay, maxDelay int
 var insta *goinsta.Instagram
 var targetUsers map[string]*goinsta.User
 var usersFollowers, usersFollowings map[string][]goinsta.User
 
-func Init(username_, password_ string, minDelay_, maxDelay_ int) error {
+func Init(username_, password_, proxyURL_, proxyLogin_, proxyPassword_ string, minDelay_, maxDelay_ int) error {
 	/*defer db.Close()
 	initDB()*/
 
 	username = username_
 	password = password_
+	proxyURL = proxyURL_
+	proxyLogin = proxyLogin_
+	proxyPassword = proxyPassword_
 	minDelay = minDelay_
 	maxDelay = maxDelay_
+
 	if ins, err := login(); err == nil {
 		insta = ins
-		usersFollowers = make(map[string][]goinsta.User)
-		usersFollowings = make(map[string][]goinsta.User)
-		targetUsers = make(map[string]*goinsta.User)
+		if err := insta.SetProxy("http://" + proxyLogin + ":" + proxyPassword + "@" + proxyURL, true); err == nil {
+			fmt.Println("Login successfully")
+			usersFollowers = make(map[string][]goinsta.User)
+			usersFollowings = make(map[string][]goinsta.User)
+			targetUsers = make(map[string]*goinsta.User)
+		} else {
+			return err
+		}
 	} else {
 		return errors.New("Login " + err.Error())
 	}
@@ -112,17 +121,15 @@ func login() (insta *goinsta.Instagram, err error) {
 			insta = goinsta.New(username, password)
 
 			if err := insta.Login(); err == nil {
-				fmt.Println("Login successfully")
 				if err := insta.Export(workDir + "\\accounts\\" + username + ".json"); err != nil {
 					return nil, err
 				} else {
 					fmt.Println("Login data export successfully")
 				}
+				return insta, nil
 			} else {
 				return nil, err
 			}
-
-			return insta, nil
 		} else {
 			fmt.Println("Login data import successfully")
 			return insta, nil

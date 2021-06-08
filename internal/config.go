@@ -7,28 +7,43 @@ import (
 )
 
 type Config struct {
-	TOKEN             string
-	USERNAME          string
-	PASSWORD          string
-	REQUEST_DELAY_MIN int
-	REQUEST_DELAY_MAX int
+	TELEGRAM_TOKEN     string
+	INSTAGRAM_USERNAME string
+	INSTAGRAM_PASSWORD string
+	PROXY_URL          string
+	PROXY_LOGIN        string
+	PROXY_PASSWORD     string
+	REQUEST_DELAY_MIN  int
+	REQUEST_DELAY_MAX  int
 }
 
 func initConfig() (config Config) {
-	var USERNAME, PASSWORD, TOKEN string
+	var INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD, PROXY_URL, PROXY_LOGIN, PROXY_PASSWORD, TELEGRAM_TOKEN string
 	var REQUEST_DELAY_MIN, REQUEST_DELAY_MAX int
 
-	if TOKEN = os.Getenv("TELEGRAM_TOKEN"); TOKEN == "" {
+	if TELEGRAM_TOKEN = os.Getenv("TELEGRAM_TOKEN"); TELEGRAM_TOKEN == "" {
 		fmt.Println("Telegram token not found")
 		return
 	}
-	if USERNAME = os.Getenv("INSTAGRAM_USERNAME"); USERNAME == "" {
-		fmt.Print("Enter username: ")
-		fmt.Scan(&USERNAME)
+	if PROXY_URL = os.Getenv("PROXY_URL"); PROXY_URL == "" {
+		fmt.Println("Proxy URL not found")
+		return
 	}
-	if PASSWORD = os.Getenv("INSTAGRAM_PASSWORD"); PASSWORD == "" {
-		fmt.Print("Enter password: ")
-		fmt.Scan(&PASSWORD)
+	if PROXY_LOGIN = os.Getenv("PROXY_LOGIN"); PROXY_LOGIN == "" {
+		fmt.Println("Proxy login not found")
+		return
+	}
+	if PROXY_PASSWORD = os.Getenv("PROXY_PASSWORD"); PROXY_PASSWORD == "" {
+		fmt.Println("Proxy password not found")
+		return
+	}
+	if INSTAGRAM_USERNAME = os.Getenv("INSTAGRAM_USERNAME"); INSTAGRAM_USERNAME == "" {
+		fmt.Print("Enter instagram username: ")
+		fmt.Scan(&INSTAGRAM_USERNAME)
+	}
+	if INSTAGRAM_PASSWORD = os.Getenv("INSTAGRAM_PASSWORD"); INSTAGRAM_PASSWORD == "" {
+		fmt.Print("Enter instagram password: ")
+		fmt.Scan(&INSTAGRAM_PASSWORD)
 	}
 
 	if REQUEST_DELAY_MIN, _ = strconv.Atoi(os.Getenv("REQUEST_DELAY_MIN")); REQUEST_DELAY_MIN == 0 {
@@ -38,7 +53,14 @@ func initConfig() (config Config) {
 		REQUEST_DELAY_MAX = 3500
 	}
 
-	config = Config{TOKEN, USERNAME, PASSWORD, REQUEST_DELAY_MIN, REQUEST_DELAY_MAX}
+	config = Config{TELEGRAM_TOKEN,
+		INSTAGRAM_USERNAME,
+		INSTAGRAM_PASSWORD,
+		PROXY_URL,
+		PROXY_LOGIN,
+		PROXY_PASSWORD,
+		REQUEST_DELAY_MIN,
+		REQUEST_DELAY_MAX}
 	fmt.Println("Config initialized")
 	return config
 }
