@@ -1,1 +1,1 @@
-web bin/internal
+worker bin/internal
