@@ -30,7 +30,7 @@ func Init(username_, password_, proxyURL_, proxyLogin_, proxyPassword_ string, m
 
 	if ins, err := login(); err == nil {
 		insta = ins
-		if err := insta.SetProxy("http://" + proxyLogin + ":" + proxyPassword + "@" + proxyURL, true); err == nil {
+		if err := insta.SetProxy("http://"+proxyLogin+":"+proxyPassword+"@"+proxyURL, true); err == nil {
 			fmt.Println("Login successfully")
 			usersFollowers = make(map[string][]goinsta.User)
 			usersFollowings = make(map[string][]goinsta.User)
@@ -116,12 +116,12 @@ func getUserFlws(users *goinsta.Users, flwCount int, limit ...int) (flwUsers []g
 }
 
 func login() (insta *goinsta.Instagram, err error) {
-	if workDir, err := os.Getwd(); err == nil {
-		if insta, err := goinsta.Import(workDir + "\\accounts\\" + username + ".json"); err != nil {
+	if path, err := getWorkDir(); err == nil {
+		if insta, err := goinsta.Import(path + username + ".json"); err != nil {
 			insta = goinsta.New(username, password)
 
 			if err := insta.Login(); err == nil {
-				if err := insta.Export(workDir + "\\accounts\\" + username + ".json"); err != nil {
+				if err := insta.Export(path + username + ".json"); err != nil {
 					return nil, err
 				} else {
 					fmt.Println("Login data export successfully")
@@ -150,6 +150,26 @@ func getListsDifference(usersList1, usersList2 []goinsta.User) (diffList []goins
 		}
 	}
 	return diffList
+}
+
+func getWorkDir() (path string, err error) {
+	if workDir, err := os.Getwd(); err == nil {
+		path = workDir + "\\accounts"
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			if err := os.Mkdir(path, os.ModeDir); err == nil {
+				path = path + "\\"
+				return path, nil
+			} else {
+				path = "./"
+				return path, nil
+			}
+		} else {
+			path = path + "\\"
+			return path, nil
+		}
+	} else {
+		return "", err
+	}
 }
 
 func getRandomNumber(min, max int) int {

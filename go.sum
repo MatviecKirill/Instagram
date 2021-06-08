@@ -1,5 +1,5 @@
-github.com/TheForgotten69/goinsta/v2 v2.6.0 h1:hHOR8O0bpjHUsOY/x1FCpXwORxAHMW0ofbulYWQotPs=
-github.com/TheForgotten69/goinsta/v2 v2.6.0/go.mod h1:dAlLd6WX96PE5XvFgkpn4KiHo/4tIPPsv9+lxt6hyXw=
+github.com/MatviecKirill/goinsta/v2 v2.6.1 h1:rBLFPyOTgUQEUb0Cq54nT82R8MI2PQvFdkShgqHWm/Y=
+github.com/MatviecKirill/goinsta/v2 v2.6.1/go.mod h1:dAlLd6WX96PE5XvFgkpn4KiHo/4tIPPsv9+lxt6hyXw=
 github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible h1:2cauKuaELYAEARXRkq2LrJ0yDDv1rW7+wrTEdVL3uaU=
 github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible/go.mod h1:qf9acutJ8cwBUhm1bqgz6Bei9/C/c93FPDljKWwsOgM=
 github.com/mattn/go-sqlite3 v1.14.7 h1:fxWBnXkxfM6sRiuH3bqJ4CfzZojMOLVc0UTsTglEghA=

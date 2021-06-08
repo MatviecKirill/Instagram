@@ -31,7 +31,6 @@ func main() {
 					fmt.Print(message)
 				} else {
 					fmt.Println(err)
-					telegram.SendMessage(err.Error())
 				}
 			} else {
 				telegram.SendMessage("Чтобы начать анализ введи команду:\n /get имя пользователя")
