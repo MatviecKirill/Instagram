@@ -4,6 +4,8 @@ import (
 	stat "InstagramStatistic/internal/Stat"
 	telegram "InstagramStatistic/internal/Telegram"
 	"fmt"
+	"net/http"
+	"os"
 	"strings"
 )
 
@@ -12,6 +14,7 @@ var messageChannel chan string
 var telegramMessage string
 
 func main() {
+	go startWebServer()
 	config = initConfig()
 	messageChannel = make(chan string)
 
@@ -39,4 +42,16 @@ func main() {
 	} else {
 		fmt.Println(err)
 	}
+}
+
+//Запуск веб сервера, для ответов на запросы.
+//Необходим, чтобы телеграм бот получил ответ при запуске веб хука. И чтобы heroku не падал из-за отсутсвия обработчика запросов.
+func startWebServer() {
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	fmt.Println("Start listening port: " + os.Getenv("PORT"))
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "%v", "InstagramStatistic")
 }

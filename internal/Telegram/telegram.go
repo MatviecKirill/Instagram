@@ -3,7 +3,8 @@ package Telegram
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"log"
+	"net/http"
+	"os"
 )
 
 var bot *tgbotapi.BotAPI
@@ -12,22 +13,35 @@ var update tgbotapi.Update
 func Init(token string, messageChannel chan string) {
 	if b, err := tgbotapi.NewBotAPI(token); err == nil {
 		bot = b
-	}else {
+	} else {
+		return
 		fmt.Println(err)
 	}
-	fmt.Println("Telegram bot init successfully")
 
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
+	//Телеграм бот запускается с использованием webhook'a
+	//Когда кто-то напишет боту, он обратится к моему серверу
+	if _, err := bot.SetWebhook(tgbotapi.NewWebhook("https://instagram-statistics.herokuapp.com/" + bot.Token)); err == nil {
+		if info, err := bot.GetWebhookInfo(); err == nil {
+			if info.LastErrorDate == 0 {
+				fmt.Println("Telegram bot init successfully")
 
-	if updateChannel, err := bot.GetUpdatesChan(u); err == nil {
-		for update = range updateChannel {
-			if update.Message == nil {
-				continue
+				updates := bot.ListenForWebhook("/" + bot.Token)
+				go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+
+				for update = range updates {
+					if update.Message == nil {
+						continue
+					}
+
+					fmt.Printf("Message from [%s]: %s", update.Message.From.FirstName, update.Message.Text)
+					messageChannel <- update.Message.Text
+				}
+
+			} else {
+				fmt.Printf("Telegram callback failed: %s", info.LastErrorMessage)
 			}
-
-			log.Printf("Message from [%s]: %s", update.Message.From.FirstName, update.Message.Text)
-			messageChannel <- update.Message.Text
+		} else {
+			fmt.Println(err)
 		}
 	} else {
 		fmt.Println(err)
