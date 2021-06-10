@@ -46,19 +46,19 @@ func Init(username_, password_, proxyURL_, proxyLogin_, proxyPassword_ string, m
 
 func getNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
 	if err := getUserInfo(targetUserName); err == nil {
-		//if usersFollowers[targetUserName] == nil && usersFollowings[targetUserName] == nil {
-		if err := getUserFollowers(targetUserName); err == nil {
-			if err := getUserFollowings(targetUserName); err == nil {
-				return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
+		if len(usersFollowers[targetUserName]) != targetUsers[targetUserName].FollowerCount || len(usersFollowings[targetUserName]) != targetUsers[targetUserName].FollowingCount {
+			if err := getUserFollowers(targetUserName); err == nil {
+				if err := getUserFollowings(targetUserName); err == nil {
+					return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
+				} else {
+					return nil, err
+				}
 			} else {
 				return nil, err
 			}
 		} else {
-			return nil, err
+			return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
 		}
-		//} else {
-		//	return getListsDifference(usersFollowings[targetUserName], usersFollowers[targetUserName]), nil
-		//}
 	} else {
 		return nil, err
 	}
