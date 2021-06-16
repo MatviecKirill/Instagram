@@ -17,9 +17,6 @@ var targetUsers map[string]*goinsta.User
 var usersFollowers, usersFollowings map[string][]goinsta.User
 
 func Init(username_, password_, proxyURL_, proxyLogin_, proxyPassword_ string, minDelay_, maxDelay_ int) error {
-	/*defer db.Close()
-	initDB()*/
-
 	username = username_
 	password = password_
 	proxyURL = proxyURL_
@@ -98,15 +95,19 @@ func getUserFollowings(targetUserName string) error {
 }
 
 func getUserFlws(users *goinsta.Users, flwCount int, limit ...int) (flwUsers []goinsta.User, err error) {
+	progressStages := 0
 	flwUsers = make([]goinsta.User, 0, flwCount)
 
 	fmt.Println("Start loading users. Count: " + strconv.Itoa(flwCount))
 	for users.Next() {
 		flwUsers = append(flwUsers, users.Users...)
-
 		delay := getRandomNumber(minDelay-getRandomNumber(0, 200), maxDelay+getRandomNumber(0, 500))
 		time.Sleep(time.Duration(delay) * time.Millisecond)
-		fmt.Printf("Delay: %v; Loaded users count: %v/%v \n", delay, len(flwUsers), strconv.Itoa(flwCount))
+
+		if progressStages != len(flwUsers)/1000 {
+			progressStages = len(flwUsers) / 1000
+			fmt.Printf("Loaded users count: %v/%v \n", len(flwUsers), strconv.Itoa(flwCount))
+		}
 
 		if len(limit) != 0 && limit[0] != 0 && len(flwUsers) >= limit[0] {
 			return flwUsers, nil

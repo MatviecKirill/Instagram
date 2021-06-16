@@ -3,8 +3,6 @@ package Telegram
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"net/http"
-	"os"
 )
 
 var bot *tgbotapi.BotAPI
@@ -26,14 +24,12 @@ func Init(token string, messageChannel chan string) {
 				fmt.Println("Telegram bot init successfully")
 
 				updates := bot.ListenForWebhook("/" + bot.Token)
-				go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
-
 				for update = range updates {
 					if update.Message == nil {
 						continue
 					}
 
-					fmt.Printf("Message from [%s]: %s", update.Message.From.FirstName, update.Message.Text)
+					fmt.Printf("Message from [%s]: %s\n", update.Message.From.FirstName, update.Message.Text)
 					messageChannel <- update.Message.Text
 				}
 
