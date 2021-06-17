@@ -11,6 +11,7 @@ import (
 )
 
 var ctx = context.Background()
+var client *redis.Client
 
 func Init() error {
 	herokuURL := os.Getenv("REDIS_URL")
@@ -26,32 +27,45 @@ func Init() error {
 		return errors.New("heroku redis URL not found")
 	}
 
-	rdb := redis.NewClient(&redis.Options{
+	client = redis.NewClient(&redis.Options{
 		Addr:     herokuURL,
 		Password: password,
 		DB:       0,
 	})
-
 	fmt.Println("Redis connect successfully")
-	rdb.FlushAll(ctx)
-	/*err := rdb.Set(ctx, "key", "value", 0).Err()
-	if err != nil {
-		panic(err)
-	}
-
-	val, err := rdb.Get(ctx, "key").Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("key", val)
-
-	val2, err := rdb.Get(ctx, "key2").Result()
-	if err == redis.Nil {
-		fmt.Println("key2 does not exist")
-	} else if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("key2", val2)
-	}*/
 	return nil
+}
+
+func Exist(key string) bool {
+	if exist, err := client.Exists(ctx, key).Result(); err == nil && exist == 1 {
+		return true
+	}
+	return false
+}
+
+func Set(key, value string) {
+	client.Set(ctx, key, value, 0)
+}
+
+func Get(key string) string {
+	if value, err := client.Get(ctx, key).Result(); err == nil {
+		return value
+	} else {
+		fmt.Println(err)
+		return ""
+	}
+}
+
+func SAdd(key string, values interface{}) {
+	client.Del(ctx, key)
+	client.SAdd(ctx, key, values)
+}
+
+func SMembers(key string) []string {
+	if values, err := client.SMembers(ctx, key).Result(); err == nil {
+		return values
+	} else {
+		fmt.Println(err)
+		return nil
+	}
 }

@@ -15,28 +15,43 @@ var telegramMessageChannel, webServerChannel chan string
 var telegramMessage string
 
 func main() {
-	go func() { startWebServer() }()
+	go startWebServer()
 	config = initConfig()
 	telegramMessageChannel = make(chan string)
 
 	if err := redisDB.Init(); err == nil {
 		if err := stat.Init(config.INSTAGRAM_USERNAME, config.INSTAGRAM_PASSWORD, config.PROXY_URL, config.PROXY_LOGIN, config.PROXY_PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
-			go func() { telegram.Init(config.TELEGRAM_TOKEN, telegramMessageChannel) }()
+			go telegram.Init(config.TELEGRAM_TOKEN, telegramMessageChannel)
 
 			for {
 				telegramMessage = <-telegramMessageChannel
 
-				if strings.HasPrefix(telegramMessage, "/get") {
-					username := strings.Trim(strings.TrimPrefix(telegramMessage, "/get"), " ")
-					telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
-					if message, err := stat.GetNonMutualFollowersMessage(username); err == nil {
-						telegram.SendMessage(message)
-						fmt.Print(message)
-					} else {
-						fmt.Println(err)
+				if strings.HasPrefix(telegramMessage, "/") {
+					if strings.HasPrefix(telegramMessage, "/взаимные") {
+						username := strings.Trim(strings.TrimPrefix(telegramMessage, "/взаимные"), " ")
+						telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
+						if message, err := stat.GetNonMutualFollowersMessage(username); err == nil {
+							telegram.SendMessage(message)
+							fmt.Print(message)
+						} else {
+							fmt.Println(err)
+						}
+					}
+
+					if strings.HasPrefix(telegramMessage, "/отписались") {
+						username := strings.Trim(strings.TrimPrefix(telegramMessage, "/отписались"), " ")
+						telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
+						if message, err := stat.GetUnsubscribedFollowersMessage(username); err == nil {
+							telegram.SendMessage(message)
+							fmt.Print(message)
+						} else {
+							fmt.Println(err)
+						}
 					}
 				} else {
-					telegram.SendMessage("Чтобы начать анализ введи команду:\n /get имя пользователя")
+					tgMessage := "Анализ взаимных подписок. Команда:\n /взаимные имя пользователя\n"
+					tgMessage += "Анализ отписавшихся пользователей. Команда:\n /отписались имя пользователя\n"
+					telegram.SendMessage(tgMessage)
 				}
 			}
 		} else {
