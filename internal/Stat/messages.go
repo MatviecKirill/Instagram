@@ -33,5 +33,6 @@ func GetUnsubscribedFollowersMessage(targetUserName string) (message string, err
 	} else {
 		return "", err
 	}
+	redisDB.Set(targetUserName+"_followers_time", timeMoscow().Format("02.01.2006 15:04"))
 	return message, nil
 }

@@ -44,6 +44,7 @@ func Exist(key string) bool {
 }
 
 func Set(key, value string) {
+	client.Del(ctx, key)
 	client.Set(ctx, key, value, 0)
 }
 

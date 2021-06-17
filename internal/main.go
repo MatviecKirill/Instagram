@@ -43,14 +43,14 @@ func main() {
 						telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
 						if message, err := stat.GetUnsubscribedFollowersMessage(username); err == nil {
 							telegram.SendMessage(message)
-							fmt.Print(message)
+							fmt.Println(message)
 						} else {
 							fmt.Println(err)
 						}
 					}
 				} else {
-					tgMessage := "Анализ взаимных подписок. Команда:\n /взаимные имя пользователя\n"
-					tgMessage += "Анализ отписавшихся пользователей. Команда:\n /отписались имя пользователя\n"
+					tgMessage := "▫️ Анализ взаимных подписок. Команда:\n /взаимные имя пользователя\n"
+					tgMessage += "▫️ Анализ отписавшихся пользователей. Команда:\n /отписались имя пользователя\n"
 					telegram.SendMessage(tgMessage)
 				}
 			}

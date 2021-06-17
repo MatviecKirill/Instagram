@@ -102,9 +102,10 @@ func getUnsubscribedFollowers(targetUserName string) ([]string, error) {
 				return nil, err
 			}
 		}
-		users := getListsDifferenceStrings(getUsersNamesList(usersFollowers[targetUserName]), redisDB.SMembers(targetUserName+"_followers"))
-		redisDB.Set(targetUserName+"_followers_time", time.Now().Format("02.01.2006 15:04"))
-		redisDB.SAdd(targetUserName+"_followers", getUsersNamesList(usersFollowers[targetUserName]))
+		users := getListsDifferenceStrings(redisDB.SMembers(targetUserName+"_followers"), getUsersNamesList(usersFollowers[targetUserName]))
+		if len(users) != 0 {
+			redisDB.SAdd(targetUserName+"_followers", getUsersNamesList(usersFollowers[targetUserName]))
+		}
 		return users, nil
 	} else {
 		return nil, err
@@ -116,7 +117,7 @@ func getUserFollowers(targetUserName string) error {
 		if followersList, err := getUserFlws(targetUsers[targetUserName].Followers(), targetUsers[targetUserName].FollowerCount, 0); err == nil {
 			usersFollowers[targetUserName] = followersList
 			if !redisDB.Exist(targetUserName + "_followers") {
-				redisDB.Set(targetUserName+"_followers_time", time.Now().Format("02.01.2006 15:04"))
+				redisDB.Set(targetUserName+"_followers_time", timeMoscow().Format("02.01.2006 15:04"))
 				redisDB.SAdd(targetUserName+"_followers", getUsersNamesList(followersList))
 			}
 			return nil
@@ -158,6 +159,7 @@ func getUserFlws(users *goinsta.Users, flwCount int, limit ...int) (flwUsers []g
 			return flwUsers, nil
 		}
 	}
+	fmt.Println("Loading finished")
 	return flwUsers, nil
 }
 
@@ -218,4 +220,12 @@ func getWorkDir() (path string, err error) {
 func getRandomNumber(min, max int) int {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(max-min) + min
+}
+
+func timeMoscow() time.Time {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		panic(err)
+	}
+	return time.Now().In(loc)
 }
