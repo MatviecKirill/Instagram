@@ -3,6 +3,7 @@ package Telegram
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"os"
 )
 
 var bot *tgbotapi.BotAPI
@@ -18,7 +19,7 @@ func Init(token string, messageChannel chan string) {
 
 	//Телеграм бот запускается с использованием webhook'a
 	//Когда кто-то напишет боту, он обратится к моему серверу
-	if _, err := bot.SetWebhook(tgbotapi.NewWebhook("https://instagram-statistics.herokuapp.com/" + bot.Token)); err == nil {
+	if _, err := bot.SetWebhook(tgbotapi.NewWebhook("https://" + os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com/" + bot.Token)); err == nil {
 		if info, err := bot.GetWebhookInfo(); err == nil {
 			if info.LastErrorDate == 0 {
 				fmt.Println("Telegram bot init successfully")

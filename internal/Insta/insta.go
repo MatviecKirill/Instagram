@@ -1,4 +1,4 @@
-package stat
+package insta
 
 import (
 	redisDB "InstagramStatistic/internal/Database"

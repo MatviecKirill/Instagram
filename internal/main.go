@@ -2,7 +2,7 @@ package main
 
 import (
 	redisDB "InstagramStatistic/internal/Database"
-	stat "InstagramStatistic/internal/Stat"
+	insta "InstagramStatistic/internal/Insta"
 	telegram "InstagramStatistic/internal/Telegram"
 	"fmt"
 	"net/http"
@@ -20,7 +20,7 @@ func main() {
 	telegramMessageChannel = make(chan string)
 
 	if err := redisDB.Init(); err == nil {
-		if err := stat.Init(config.INSTAGRAM_USERNAME, config.INSTAGRAM_PASSWORD, config.PROXY_URL, config.PROXY_LOGIN, config.PROXY_PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
+		if err := insta.Init(config.INSTAGRAM_USERNAME, config.INSTAGRAM_PASSWORD, config.PROXY_URL, config.PROXY_LOGIN, config.PROXY_PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
 			go telegram.Init(config.TELEGRAM_TOKEN, telegramMessageChannel)
 
 			for {
@@ -30,7 +30,7 @@ func main() {
 					if strings.HasPrefix(telegramMessage, "/взаимные") {
 						username := strings.Trim(strings.TrimPrefix(telegramMessage, "/взаимные"), " ")
 						telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
-						if message, err := stat.GetNonMutualFollowersMessage(username); err == nil {
+						if message, err := insta.GetNonMutualFollowersMessage(username); err == nil {
 							telegram.SendMessage(message)
 							fmt.Print(message)
 						} else {
@@ -41,7 +41,7 @@ func main() {
 					if strings.HasPrefix(telegramMessage, "/отписались") {
 						username := strings.Trim(strings.TrimPrefix(telegramMessage, "/отписались"), " ")
 						telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
-						if message, err := stat.GetUnsubscribedFollowersMessage(username); err == nil {
+						if message, err := insta.GetUnsubscribedFollowersMessage(username); err == nil {
 							telegram.SendMessage(message)
 							fmt.Println(message)
 						} else {
