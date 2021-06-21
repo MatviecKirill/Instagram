@@ -38,8 +38,6 @@ func Init(token string, messageChannel chan tgbotapi.Message) {
 				} else {
 					fmt.Printf("Telegram callback failed: %s\n", info.LastErrorMessage)
 					fmt.Println("Attempt count: " + strconv.Itoa(attemptCount+1))
-					time.Sleep(time.Second * 1)
-					bot.SetWebhook(tgbotapi.NewWebhook("http://" + os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com/" + bot.Token))
 				}
 			} else {
 				fmt.Println(err)
@@ -47,6 +45,9 @@ func Init(token string, messageChannel chan tgbotapi.Message) {
 		} else {
 			fmt.Println(err)
 		}
+		time.Sleep(time.Second * 1)
+		bot.SetWebhook(tgbotapi.NewWebhook("http://" + os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com/" + bot.Token))
+		time.Sleep(time.Second * 1)
 	}
 }
 

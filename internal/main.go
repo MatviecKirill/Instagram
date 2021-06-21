@@ -41,7 +41,7 @@ func main() {
 							tgMessage += "▫️ Анализ отписавшихся пользователей. Команда:\n /отписались имя пользователя\n"
 							tgMessage += "▫️ Привязать новый аккаунт. Команда:\n /аккаунт имя пользователя\n"
 							telegram.SendMessage(tgMessage)
-							break
+							continue
 						}
 
 						if strings.HasPrefix(message.Text, "/аккаунт") {
@@ -52,7 +52,7 @@ func main() {
 							} else {
 								telegram.SendMessage("Пользователь " + message.Text + " не найден.")
 							}
-							break
+							continue
 						}
 
 						if strings.HasPrefix(message.Text, "/невзаимные") {
@@ -66,7 +66,7 @@ func main() {
 							} else {
 								fmt.Println(err)
 							}
-							break
+							continue
 						}
 
 						if strings.HasPrefix(message.Text, "/отписались") {
@@ -80,7 +80,7 @@ func main() {
 							} else {
 								fmt.Println(err)
 							}
-							break
+							continue
 						}
 
 						telegram.SendMessage("Указанной команды не существует: " + strings.Fields(message.Text)[0])
