@@ -5,26 +5,28 @@ import (
 	insta "InstagramStatistic/internal/Insta"
 	telegram "InstagramStatistic/internal/Telegram"
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"net/http"
 	"os"
 	"strings"
 )
 
 var config Config
-var telegramMessageChannel, webServerChannel chan string
+var telegramMessageChannel chan tgbotapi.Message
+var webServerChannel chan string
 var telegramMessage string
 
 func main() {
 	go startWebServer()
 	config = initConfig()
-	telegramMessageChannel = make(chan string)
+	telegramMessageChannel = make(chan tgbotapi.Message)
 
 	if err := redisDB.Init(); err == nil {
 		if err := insta.Init(config.INSTAGRAM_USERNAME, config.INSTAGRAM_PASSWORD, config.PROXY_URL, config.PROXY_LOGIN, config.PROXY_PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
 			go telegram.Init(config.TELEGRAM_TOKEN, telegramMessageChannel)
 
-			for {
-				telegramMessage = <-telegramMessageChannel
+			for message := range telegramMessageChannel {
+				telegramMessage = message.Text
 
 				if strings.HasPrefix(telegramMessage, "/") {
 					if strings.HasPrefix(telegramMessage, "/взаимные") {

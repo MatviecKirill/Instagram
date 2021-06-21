@@ -9,7 +9,7 @@ import (
 var bot *tgbotapi.BotAPI
 var update tgbotapi.Update
 
-func Init(token string, messageChannel chan string) {
+func Init(token string, messageChannel chan tgbotapi.Message) {
 	if b, err := tgbotapi.NewBotAPI(token); err == nil {
 		bot = b
 	} else {
@@ -19,6 +19,7 @@ func Init(token string, messageChannel chan string) {
 
 	//Телеграм бот запускается с использованием webhook'a
 	//Когда кто-то напишет боту, он обратится к моему серверу
+	//heroku labs:enable runtime-dyno-metadata -a <app name> - включить метаданные для приложения. HEROKU_APP_NAME
 	if _, err := bot.SetWebhook(tgbotapi.NewWebhook("https://" + os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com/" + bot.Token)); err == nil {
 		if info, err := bot.GetWebhookInfo(); err == nil {
 			if info.LastErrorDate == 0 {
@@ -29,9 +30,8 @@ func Init(token string, messageChannel chan string) {
 					if update.Message == nil {
 						continue
 					}
-
 					fmt.Printf("Message from [%s]: %s\n", update.Message.From.FirstName, update.Message.Text)
-					messageChannel <- update.Message.Text
+					messageChannel <- *update.Message
 				}
 
 			} else {
