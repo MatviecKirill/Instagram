@@ -66,7 +66,7 @@ func login() (insta *goinsta.Instagram, err error) {
 	}
 }
 
-func getUserInfo(targetUserName string) error {
+func GetUserInfo(targetUserName string) error {
 	if targetUserInfo, err := insta.Profiles.ByName(targetUserName); err == nil {
 		targetUsers[targetUserName] = targetUserInfo
 		return nil
@@ -76,7 +76,7 @@ func getUserInfo(targetUserName string) error {
 }
 
 func getNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
-	if err := getUserInfo(targetUserName); err == nil {
+	if err := GetUserInfo(targetUserName); err == nil {
 		if len(usersFollowers[targetUserName]) != targetUsers[targetUserName].FollowerCount || len(usersFollowings[targetUserName]) != targetUsers[targetUserName].FollowingCount {
 			if err := getUserFollowers(targetUserName); err == nil {
 				if err := getUserFollowings(targetUserName); err == nil {
@@ -96,7 +96,7 @@ func getNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
 }
 
 func getUnsubscribedFollowers(targetUserName string) ([]string, error) {
-	if err := getUserInfo(targetUserName); err == nil {
+	if err := GetUserInfo(targetUserName); err == nil {
 		if len(usersFollowers[targetUserName]) != targetUsers[targetUserName].FollowerCount || !redisDB.Exist(targetUserName+"_followers") {
 			if err := getUserFollowers(targetUserName); err != nil {
 				return nil, err

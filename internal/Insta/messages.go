@@ -9,7 +9,7 @@ const instaURL = "https://www.instagram.com/"
 
 func GetNonMutualFollowersMessage(targetUserName string) (message string, err error) {
 	if users, err := getNonMutualFollowers(targetUserName); err == nil {
-		message = "Невзаимные подписки:\n"
+		message = "Невзаимные подписки для " + targetUserName + ":\n"
 		for i, user := range users {
 			message = message + strconv.Itoa(i+1) + ". " + user.FullName + " " + instaURL + user.Username + "\n"
 		}
@@ -28,7 +28,7 @@ func GetUnsubscribedFollowersMessage(targetUserName string) (message string, err
 				message = message + strconv.Itoa(i+1) + ". " + instaURL + user + "\n"
 			}
 		} else {
-			message = "Не найдено отписавшихся пользователей с даты: " + redisDB.Get(targetUserName+"_followers_time")
+			message = "Не найдено отписавшихся пользователей для" + targetUserName + "с даты: " + redisDB.Get(targetUserName+"_followers_time")
 		}
 	} else {
 		return "", err

@@ -23,8 +23,6 @@ func Init(token string, messageChannel chan tgbotapi.Message) {
 	if _, err := bot.SetWebhook(tgbotapi.NewWebhook("https://" + os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com/" + bot.Token)); err == nil {
 		if info, err := bot.GetWebhookInfo(); err == nil {
 			if info.LastErrorDate == 0 {
-				fmt.Println("Telegram bot init successfully")
-
 				updates := bot.ListenForWebhook("/" + bot.Token)
 				for update = range updates {
 					if update.Message == nil {
