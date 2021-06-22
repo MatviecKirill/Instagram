@@ -34,11 +34,11 @@ func Init(token string, messageChannel chan tgbotapi.Message) {
 }
 
 func setWebhook() {
-	for attemptCount := 0; attemptCount <= 10; attemptCount++ {
+	for attemptCount := 0; attemptCount < 10; attemptCount++ {
 		if _, err := bot.SetWebhook(tgbotapi.NewWebhook("https://" + os.Getenv("HEROKU_APP_NAME") + ".herokuapp.com/" + bot.Token)); err == nil {
 			if info, err := bot.GetWebhookInfo(); err == nil {
 				if info.LastErrorDate == 0 {
-
+					return
 				} else {
 					fmt.Printf("Telegram callback failed: %s\n", info.LastErrorMessage)
 					fmt.Println("Attempt count: " + strconv.Itoa(attemptCount+1))
