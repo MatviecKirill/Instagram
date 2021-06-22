@@ -18,7 +18,6 @@ var targetUsers map[string]*goinsta.User
 var usersFollowers, usersFollowings map[string][]goinsta.User
 
 func Init(username_, password_, proxyURL_, proxyLogin_, proxyPassword_ string, minDelay_, maxDelay_ int) error {
-	return nil
 	username = username_
 	password = password_
 	proxyURL = proxyURL_
