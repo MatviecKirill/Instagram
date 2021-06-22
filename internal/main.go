@@ -25,74 +25,26 @@ func main() {
 		if err := insta.Init(config.INSTAGRAM_USERNAME, config.INSTAGRAM_PASSWORD, config.PROXY_URL, config.PROXY_LOGIN, config.PROXY_PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
 			go telegram.Init(config.TELEGRAM_TOKEN, telegramMessageChannel)
 
-			for message := range telegramMessageChannel {
-				if username := redisDB.Get(strconv.Itoa(message.From.ID) + "_username"); username != "" || strings.HasPrefix(message.Text, "/") {
+			for telegramMessage := range telegramMessageChannel {
+				if username := redisDB.Get(strconv.Itoa(telegramMessage.From.ID) + "_username"); username != "" || strings.HasPrefix(telegramMessage.Text, "/") {
 					if username != "" {
-						fmt.Println("Привязанный аккаунт: " + username + " TelegramID: " + strconv.Itoa(message.From.ID))
+						fmt.Println("Привязанный аккаунт: " + username + " TelegramID: " + strconv.Itoa(telegramMessage.From.ID))
 					}
 
-					if strings.HasPrefix(message.Text, "/") {
-						if strings.HasPrefix(message.Text, "/справка") {
-							tgMessage := ""
-							if username != "" {
-								tgMessage += "✅️ Привязанный аккаунт: " + username + "\n"
-							}
-							tgMessage += "▫️ Анализ взаимных подписок. Команда:\n /взаимные имя пользователя\n"
-							tgMessage += "▫️ Анализ отписавшихся пользователей. Команда:\n /отписались имя пользователя\n"
-							tgMessage += "▫️ Привязать новый аккаунт. Команда:\n /аккаунт имя пользователя\n"
-							telegram.SendMessage(tgMessage)
+					if strings.HasPrefix(telegramMessage.Text, "/") {
+						if telegram.ExecuteCommand(username, telegramMessage) {
 							continue
 						}
-
-						if strings.HasPrefix(message.Text, "/аккаунт") {
-							username = strings.Trim(strings.TrimPrefix(message.Text, "/аккаунт"), " ")
-							if err := insta.GetUserInfo(username); err == nil {
-								redisDB.Set(strconv.Itoa(message.From.ID)+"_username", username)
-								telegram.SendMessage("Привязано новое имя аккаунта: " + username)
-							} else {
-								telegram.SendMessage("Пользователь " + message.Text + " не найден.")
-							}
-							continue
-						}
-
-						if strings.HasPrefix(message.Text, "/невзаимные") {
-							if username == "" {
-								username = strings.Trim(strings.TrimPrefix(message.Text, "/невзаимные"), " ")
-							}
-							telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
-							if message, err := insta.GetNonMutualFollowersMessage(username); err == nil {
-								telegram.SendMessage(message)
-								fmt.Print(message)
-							} else {
-								fmt.Println(err)
-							}
-							continue
-						}
-
-						if strings.HasPrefix(message.Text, "/отписались") {
-							if username == "" {
-								username = strings.Trim(strings.TrimPrefix(message.Text, "/отписались"), " ")
-							}
-							telegram.SendMessage("Собираю данные по пользователю: " + username + ". Ожидайте...")
-							if message, err := insta.GetUnsubscribedFollowersMessage(username); err == nil {
-								telegram.SendMessage(message)
-								fmt.Println(message)
-							} else {
-								fmt.Println(err)
-							}
-							continue
-						}
-
-						telegram.SendMessage("Указанной команды не существует: " + strings.Fields(message.Text)[0])
+						telegram.SendMessage("Указанной команды не существует: " + strings.Fields(telegramMessage.Text)[0])
 					} else {
-						telegram.SendMessage("Для получения справки введи команду: /справка")
+						telegram.SendMessage("Для получения справки введи команду: /help")
 					}
 				} else {
-					if err := insta.GetUserInfo(message.Text); err == nil {
-						redisDB.Set(strconv.Itoa(message.From.ID)+"_username", message.Text)
-						telegram.SendMessage("Привязано новое имя аккаунта: " + message.Text)
+					if err := insta.GetUserInfo(telegramMessage.Text); err == nil {
+						redisDB.Set(strconv.Itoa(telegramMessage.From.ID)+"_username", telegramMessage.Text)
+						telegram.SendMessage("Привязано новое имя аккаунта: " + telegramMessage.Text)
 					} else {
-						telegram.SendMessage("Пользователь " + message.Text + " не найден.\nВведи имя аккаунта:")
+						telegram.SendMessage("Пользователь " + telegramMessage.Text + " не найден.\nВведи имя аккаунта:")
 					}
 				}
 			}

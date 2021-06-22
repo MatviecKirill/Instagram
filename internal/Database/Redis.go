@@ -57,6 +57,10 @@ func Get(key string) string {
 	}
 }
 
+func Del(key string) {
+	client.Del(ctx, key)
+}
+
 func SAdd(key string, values interface{}) {
 	client.Del(ctx, key)
 	client.SAdd(ctx, key, values)

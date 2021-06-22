@@ -60,7 +60,3 @@ func SendMessage(message string) {
 
 	bot.Send(msg)
 }
-
-func CreateKeyboard() {
-	tgbotapi.NewKeyboardButton("1")
-}
