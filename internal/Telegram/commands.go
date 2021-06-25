@@ -23,6 +23,16 @@ func ExecuteCommand(username string, telegramMessage tgbotapi.Message) bool {
 		return true
 	}
 
+	if strings.HasPrefix(telegramMessage.Text, "/accountunbind") {
+		if username != "" {
+			redisDB.Del(strconv.Itoa(telegramMessage.From.ID)+"_username")
+			SendMessage("Аккаунт отвязан.")
+		} else {
+			SendMessage("Привязанный аккаунт не найден.")
+		}
+		return true
+	}
+
 	if strings.HasPrefix(telegramMessage.Text, "/account") {
 		username = strings.Trim(strings.TrimPrefix(telegramMessage.Text, "/account"), " ")
 		if err := insta.GetUserInfo(username); err == nil {
@@ -30,16 +40,6 @@ func ExecuteCommand(username string, telegramMessage tgbotapi.Message) bool {
 			SendMessage("Привязано новое имя аккаунта: " + username)
 		} else {
 			SendMessage("Пользователь " + telegramMessage.Text + " не найден.")
-		}
-		return true
-	}
-
-	if strings.HasPrefix(telegramMessage.Text, "/accountunbind") {
-		if username != "" {
-			redisDB.Del(strconv.Itoa(telegramMessage.From.ID)+"_username")
-			SendMessage("Аккаунт отвязан.")
-		} else {
-			SendMessage("Привязанный аккаунт не найден.")
 		}
 		return true
 	}
