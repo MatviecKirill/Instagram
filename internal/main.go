@@ -32,10 +32,14 @@ func main() {
 					}
 
 					if strings.HasPrefix(telegramMessage.Text, "/") {
-						if telegram.ExecuteCommand(username, telegramMessage) {
+						if telegram.ExecuteCommand(&username, telegramMessage) {
 							continue
 						}
-						telegram.SendMessage("Указанной команды не существует: " + strings.Fields(telegramMessage.Text)[0])
+						if username == "" {
+							telegram.SendMessage("Введи имя аккаунта:")
+						} else {
+							telegram.SendMessage("Указанной команды не существует: " + strings.Fields(telegramMessage.Text)[0])
+						}
 					} else {
 						telegram.SendMessage("Для получения справки введи команду: /help")
 					}
