@@ -1,5 +1,5 @@
-github.com/MatviecKirill/goinsta/v2 v2.6.1 h1:rBLFPyOTgUQEUb0Cq54nT82R8MI2PQvFdkShgqHWm/Y=
-github.com/MatviecKirill/goinsta/v2 v2.6.1/go.mod h1:dAlLd6WX96PE5XvFgkpn4KiHo/4tIPPsv9+lxt6hyXw=
+github.com/MatviecKirill/goinsta/v2 v2.7.1 h1:MfUV1zc50VVrUmW6svsFLi0JKDGvsurr17gIuQch7yU=
+github.com/MatviecKirill/goinsta/v2 v2.7.1/go.mod h1:dAlLd6WX96PE5XvFgkpn4KiHo/4tIPPsv9+lxt6hyXw=
 github.com/cespare/xxhash/v2 v2.1.1 h1:6MnRN8NT7+YBpUIWxHtefFZOKTAPgGjpQSxqLNn0+qY=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
