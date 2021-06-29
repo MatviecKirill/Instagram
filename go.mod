@@ -10,4 +10,4 @@ require (
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 )
 
-//replace github.com/TheForgotten69/goinsta/v2 v2.7.0 => github.com/MatviecKirill/goinsta/v2 v2.7.0
+replace github.com/TheForgotten69/goinsta/v2 v2.7.0 => github.com/MatviecKirill/goinsta/v2 v2.7.1
