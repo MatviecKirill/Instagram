@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func ExecuteCommand(username *string, telegramMessage tgbotapi.Message) bool {
+func ExecuteCommand(username *string, chatId int64, telegramMessage tgbotapi.Message) bool {
 	if strings.HasPrefix(telegramMessage.Text, "/help") {
 		tgMessage := ""
 		if *username != "" {
@@ -19,16 +19,16 @@ func ExecuteCommand(username *string, telegramMessage tgbotapi.Message) bool {
 		tgMessage += "▫️ Анализ отписавшихся пользователей. Команда:\n /unsubscribe имя пользователя\n"
 		tgMessage += "▫️ Привязать новый аккаунт. Команда:\n /account имя пользователя\n"
 		tgMessage += "▫️ Отвзяать аккаунт. Команда:\n /accountunbind\n"
-		SendMessage(tgMessage)
+		SendMessage(tgMessage, chatId)
 		return true
 	}
 
 	if strings.HasPrefix(telegramMessage.Text, "/accountunbind") {
 		if *username != "" {
 			redisDB.Del(strconv.Itoa(telegramMessage.From.ID)+"_username")
-			SendMessage("Аккаунт отвязан.")
+			SendMessage("Аккаунт отвязан.", chatId)
 		} else {
-			SendMessage("Привязанный аккаунт не найден.")
+			SendMessage("Привязанный аккаунт не найден.", chatId)
 		}
 		return true
 	}
@@ -37,9 +37,9 @@ func ExecuteCommand(username *string, telegramMessage tgbotapi.Message) bool {
 		*username = strings.Trim(strings.TrimPrefix(telegramMessage.Text, "/account"), " ")
 		if err := insta.GetUserInfo(*username); err == nil {
 			redisDB.Set(strconv.Itoa(telegramMessage.From.ID)+"_username", *username)
-			SendMessage("Привязано новое имя аккаунта: " + *username)
+			SendMessage("Привязано новое имя аккаунта: " + *username, chatId)
 		} else {
-			SendMessage("Пользователь " + *username + " не найден.")
+			SendMessage("Пользователь " + *username + " не найден.", chatId)
 		}
 		return true
 	}
@@ -52,9 +52,9 @@ func ExecuteCommand(username *string, telegramMessage tgbotapi.Message) bool {
 		if *username == "" {
 			return false
 		}
-		SendMessage("Собираю данные по пользователю: " + *username + ". Ожидайте...")
+		SendMessage("Собираю данные по пользователю: " + *username + ". Ожидайте...", chatId)
 		if message, err := insta.GetNonMutualFollowersMessage(*username); err == nil {
-			SendMessage(message)
+			SendMessage(message, chatId)
 			fmt.Print(message)
 		} else {
 			fmt.Println(err)
@@ -70,9 +70,9 @@ func ExecuteCommand(username *string, telegramMessage tgbotapi.Message) bool {
 		if *username == "" {
 			return false
 		}
-		SendMessage("Собираю данные по пользователю: " + *username + ". Ожидайте...")
+		SendMessage("Собираю данные по пользователю: " + *username + ". Ожидайте...", chatId)
 		if message, err := insta.GetUnsubscribedFollowersMessage(*username); err == nil {
-			SendMessage(message)
+			SendMessage(message, chatId)
 			fmt.Println(message)
 		} else {
 			fmt.Println(err)

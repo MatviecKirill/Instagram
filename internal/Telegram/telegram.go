@@ -55,8 +55,8 @@ func setWebhook() {
 	}
 }
 
-func SendMessage(message string) {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, message)
+func SendMessage(message string, chatId int64) {
+	msg := tgbotapi.NewMessage(chatId, message)
 
 	bot.Send(msg)
 }
