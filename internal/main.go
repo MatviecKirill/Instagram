@@ -15,8 +15,11 @@ import (
 var config Config
 var telegramMessageChannel chan tgbotapi.Message
 var webServerChannel chan string
+var chatId int64
+var fuckOffMessage string
 
 func main() {
+	fuckOffMessage = "Пошёл вон отсюда псина! Тебе здесь не рады!"
 	go startWebServer()
 	config = initConfig()
 	telegramMessageChannel = make(chan tgbotapi.Message)
@@ -26,29 +29,42 @@ func main() {
 			go telegram.Init(config.TELEGRAM_TOKEN, telegramMessageChannel)
 
 			for telegramMessage := range telegramMessageChannel {
+				accessDenied := true
+				for telegramWhiteListUserId := range config.TELEGRAM_ACCOUNTS_WHITELIST {
+					if telegramWhiteListUserId == telegramMessage.From.ID {
+						accessDenied = false
+						break
+					}
+				}
+				if len(config.TELEGRAM_ACCOUNTS_WHITELIST) == 0 || accessDenied{
+					telegram.SendMessage(fuckOffMessage, chatId)
+					continue
+				}
+
+				chatId = telegramMessage.Chat.ID
 				if username := redisDB.Get(strconv.Itoa(telegramMessage.From.ID) + "_username"); username != "" || strings.HasPrefix(telegramMessage.Text, "/") {
 					if username != "" {
 						fmt.Println("Привязанный аккаунт: " + username + " TelegramID: " + strconv.Itoa(telegramMessage.From.ID))
 					}
 
 					if strings.HasPrefix(telegramMessage.Text, "/") {
-						if telegram.ExecuteCommand(&username, telegramMessage) {
+						if telegram.ExecuteCommand(&username, chatId, telegramMessage) {
 							continue
 						}
 						if username == "" {
-							telegram.SendMessage("Введи имя аккаунта:")
+							telegram.SendMessage("Введи имя аккаунта:", chatId)
 						} else {
-							telegram.SendMessage("Указанной команды не существует: " + strings.Fields(telegramMessage.Text)[0])
+							telegram.SendMessage("Указанной команды не существует: "+strings.Fields(telegramMessage.Text)[0], chatId)
 						}
 					} else {
-						telegram.SendMessage("Для получения справки введи команду: /help")
+						telegram.SendMessage("Для получения справки введи команду: /help", chatId)
 					}
 				} else {
 					if err := insta.GetUserInfo(telegramMessage.Text); err == nil {
 						redisDB.Set(strconv.Itoa(telegramMessage.From.ID)+"_username", telegramMessage.Text)
-						telegram.SendMessage("Привязано новое имя аккаунта: " + telegramMessage.Text)
+						telegram.SendMessage("Привязано новое имя аккаунта: "+telegramMessage.Text, chatId)
 					} else {
-						telegram.SendMessage("Пользователь " + telegramMessage.Text + " не найден.\nВведи имя аккаунта:")
+						telegram.SendMessage("Пользователь "+telegramMessage.Text+" не найден.\nВведи имя аккаунта:", chatId)
 					}
 				}
 			}

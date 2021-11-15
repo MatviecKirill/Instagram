@@ -28,7 +28,7 @@ func Init(username_, password_, proxyURL_, proxyLogin_, proxyPassword_ string, m
 
 	if ins, err := login(); err == nil {
 		insta = ins
-		if err := insta.SetProxy("http://"+proxyLogin+":"+proxyPassword+"@"+proxyURL, true); err == nil {
+		if err := insta.SetProxy("https://"+proxyLogin+":"+proxyPassword+"@"+proxyURL, true); err == nil {
 			fmt.Println("Login successfully")
 			usersFollowers = make(map[string][]goinsta.User)
 			usersFollowings = make(map[string][]goinsta.User)

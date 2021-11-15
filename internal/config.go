@@ -4,22 +4,27 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
-	TELEGRAM_TOKEN     string
-	INSTAGRAM_USERNAME string
-	INSTAGRAM_PASSWORD string
-	PROXY_URL          string
-	PROXY_LOGIN        string
-	PROXY_PASSWORD     string
-	REQUEST_DELAY_MIN  int
-	REQUEST_DELAY_MAX  int
+	TELEGRAM_ACCOUNTS_WHITELIST []string
+	TELEGRAM_TOKEN              string
+	INSTAGRAM_USERNAME          string
+	INSTAGRAM_PASSWORD          string
+	PROXY_URL                   string
+	PROXY_LOGIN                 string
+	PROXY_PASSWORD              string
+	REQUEST_DELAY_MIN           int
+	REQUEST_DELAY_MAX           int
 }
 
 func initConfig() (config Config) {
 	var INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD, PROXY_URL, PROXY_LOGIN, PROXY_PASSWORD, TELEGRAM_TOKEN string
 	var REQUEST_DELAY_MIN, REQUEST_DELAY_MAX int
+	var TELEGRAM_ACCOUNTS_WHITELIST []string
+
+	TELEGRAM_ACCOUNTS_WHITELIST = strings.Split(os.Getenv("TELEGRAM_ACCOUNTS_WHITELIST"), ",")
 
 	if TELEGRAM_TOKEN = os.Getenv("TELEGRAM_TOKEN"); TELEGRAM_TOKEN == "" {
 		fmt.Println("Telegram token not found")
@@ -53,7 +58,8 @@ func initConfig() (config Config) {
 		REQUEST_DELAY_MAX = 3500
 	}
 
-	config = Config{TELEGRAM_TOKEN,
+	config = Config{ TELEGRAM_ACCOUNTS_WHITELIST,
+		TELEGRAM_TOKEN,
 		INSTAGRAM_USERNAME,
 		INSTAGRAM_PASSWORD,
 		PROXY_URL,
