@@ -28,7 +28,7 @@ func Init(token string, messageChannel chan tgbotapi.Message) {
 		if update.Message == nil {
 			continue
 		}
-		fmt.Printf("Message from [%s]: %s\n", update.Message.From.FirstName, update.Message.Text)
+		fmt.Printf("Message from [%s - %d]: %s\n", update.Message.From.FirstName, update.Message.From.ID, update.Message.Text)
 		messageChannel <- *update.Message
 	}
 }
@@ -57,6 +57,5 @@ func setWebhook() {
 
 func SendMessage(message string, chatId int64) {
 	msg := tgbotapi.NewMessage(chatId, message)
-
 	bot.Send(msg)
 }

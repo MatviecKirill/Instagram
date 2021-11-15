@@ -19,7 +19,7 @@ var chatId int64
 var fuckOffMessage string
 
 func main() {
-	fuckOffMessage = "Пошёл вон отсюда псина! Тебе здесь не рады!"
+	fuckOffMessage = "Пошла вон отсюда псина! Тебе здесь не рады!"
 	go startWebServer()
 	config = initConfig()
 	telegramMessageChannel = make(chan tgbotapi.Message)
