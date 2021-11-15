@@ -29,6 +29,7 @@ func main() {
 			go telegram.Init(config.TELEGRAM_TOKEN, telegramMessageChannel)
 
 			for telegramMessage := range telegramMessageChannel {
+				chatId = telegramMessage.Chat.ID
 				accessDenied := true
 				for telegramWhiteListUserId := range config.TELEGRAM_ACCOUNTS_WHITELIST {
 					if telegramWhiteListUserId == telegramMessage.From.ID {
@@ -41,7 +42,6 @@ func main() {
 					continue
 				}
 
-				chatId = telegramMessage.Chat.ID
 				if username := redisDB.Get(strconv.Itoa(telegramMessage.From.ID) + "_username"); username != "" || strings.HasPrefix(telegramMessage.Text, "/") {
 					if username != "" {
 						fmt.Println("Привязанный аккаунт: " + username + " TelegramID: " + strconv.Itoa(telegramMessage.From.ID))
