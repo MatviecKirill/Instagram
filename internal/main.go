@@ -31,13 +31,13 @@ func main() {
 			for telegramMessage := range telegramMessageChannel {
 				chatId = telegramMessage.Chat.ID
 				accessDenied := true
-				for telegramWhiteListUserId := range config.TELEGRAM_ACCOUNTS_WHITELIST {
-					if telegramWhiteListUserId == telegramMessage.From.ID {
+				for _, telegramWhiteListUserId := range config.TELEGRAM_ACCOUNTS_WHITELIST {
+					if telegramWhiteListUserId == strconv.Itoa(telegramMessage.From.ID) {
 						accessDenied = false
 						break
 					}
 				}
-				if len(config.TELEGRAM_ACCOUNTS_WHITELIST) == 0 || accessDenied{
+				if len(config.TELEGRAM_ACCOUNTS_WHITELIST) == 0 || accessDenied {
 					telegram.SendMessage(fuckOffMessage, chatId)
 					continue
 				}
