@@ -28,7 +28,7 @@ func GetUnsubscribedFollowersMessage(targetUserName string) (message string, err
 				message = message + strconv.Itoa(i+1) + ". " + instaURL + user + "\n"
 			}
 		} else {
-			message = "Не найдено отписавшихся пользователей для" + targetUserName + "с даты: " + redisDB.Get(targetUserName+"_followers_time")
+			message = "Не найдено отписавшихся пользователей для " + targetUserName + " с даты: " + redisDB.Get(targetUserName+"_followers_time")
 		}
 	} else {
 		return "", err
