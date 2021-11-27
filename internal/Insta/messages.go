@@ -8,7 +8,7 @@ import (
 const instaURL = "https://www.instagram.com/"
 
 func GetScanMessage(targetUserName string) (message string, err error) {
-	if nonMutualUsers, subscribedUsers, unsubscribedUsers, err := getAllStatistics(targetUserName); err == nil {
+	if nonMutualUsers, unsubscribedUsers, subscribedUsers, err := getAllStatistics(targetUserName); err == nil {
 		message = "Статистика для пользователя " + targetUserName + ".\n"
 		message = message + "С даты: " + redisDB.Get(targetUserName+"_followers_time") + "\n"
 		message = message + "Подписались: " + strconv.Itoa(len(subscribedUsers)) + ". Отписались: " + strconv.Itoa(len(unsubscribedUsers)) + ".\n"
