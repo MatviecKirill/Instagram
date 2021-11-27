@@ -75,6 +75,28 @@ func GetUserInfo(targetUserName string) error {
 	}
 }
 
+func getAllStatistics(targetUserName string) (nonMutualFollowers []goinsta.User, unsubscribedUsers []string, subscribedUsers []string, err error) {
+	if err := GetUserInfo(targetUserName); err == nil {
+		if err := getUserFollowers(targetUserName); err == nil {
+			if err := getUserFollowings(targetUserName); err == nil {
+				unsubscribedUsers = getListsDifferenceStrings(redisDB.SMembers(targetUserName+"_followers"), getUsersNamesList(usersFollowers[targetUserName]))
+				subscribedUsers = getListsDifferenceStrings(getUsersNamesList(usersFollowers[targetUserName]), redisDB.SMembers(targetUserName+"_followers"))
+				if len(unsubscribedUsers) != 0 {
+					redisDB.SAdd(targetUserName+"_followers", getUsersNamesList(usersFollowers[targetUserName]))
+				}
+				nonMutualFollowers = getListsDifferenceUsers(usersFollowings[targetUserName], usersFollowers[targetUserName])
+				return nonMutualFollowers, unsubscribedUsers, subscribedUsers, nil
+			} else {
+				return nil, nil, nil, err
+			}
+		} else {
+			return nil, nil, nil, err
+		}
+	} else {
+		return nil, nil, nil, err
+	}
+}
+
 func getNonMutualFollowers(targetUserName string) ([]goinsta.User, error) {
 	if err := GetUserInfo(targetUserName); err == nil {
 		if len(usersFollowers[targetUserName]) != targetUsers[targetUserName].FollowerCount || len(usersFollowings[targetUserName]) != targetUsers[targetUserName].FollowingCount {

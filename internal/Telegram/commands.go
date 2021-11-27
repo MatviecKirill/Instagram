@@ -15,8 +15,7 @@ func ExecuteCommand(username *string, chatId int64, telegramMessage tgbotapi.Mes
 		if *username != "" {
 			tgMessage += "✅️ Привязанный аккаунт: " + *username + "\n\n"
 		}
-		tgMessage += "▫️ Анализ взаимных подписок. Команда:\n /nonmutual имя пользователя\n"
-		tgMessage += "▫️ Анализ отписавшихся пользователей. Команда:\n /unsubscribe имя пользователя\n"
+		tgMessage += "▫️ Вся статистика. Команда:\n /scan имя пользователя\n"
 		tgMessage += "▫️ Привязать новый аккаунт. Команда:\n /account имя пользователя\n"
 		tgMessage += "▫️ Отвзяать аккаунт. Команда:\n /accountunbind\n"
 		SendMessage(tgMessage, chatId)
@@ -44,8 +43,8 @@ func ExecuteCommand(username *string, chatId int64, telegramMessage tgbotapi.Mes
 		return true
 	}
 
-	if strings.HasPrefix(telegramMessage.Text, "/nonmutual") {
-		usernameFromCommand := strings.Trim(strings.TrimPrefix(telegramMessage.Text, "/nonmutual"), " ")
+	if strings.HasPrefix(telegramMessage.Text, "/scan") {
+		usernameFromCommand := strings.Trim(strings.TrimPrefix(telegramMessage.Text, "/scan"), " ")
 		if usernameFromCommand != "" {
 			*username = usernameFromCommand
 		}
@@ -53,25 +52,7 @@ func ExecuteCommand(username *string, chatId int64, telegramMessage tgbotapi.Mes
 			return false
 		}
 		SendMessage("Собираю данные по пользователю: " + *username + ". Ожидайте...", chatId)
-		if message, err := insta.GetNonMutualFollowersMessage(*username); err == nil {
-			SendMessage(message, chatId)
-			fmt.Print(message)
-		} else {
-			fmt.Println(err)
-		}
-		return true
-	}
-
-	if strings.HasPrefix(telegramMessage.Text, "/unsubscribe") {
-		usernameFromCommand := strings.Trim(strings.TrimPrefix(telegramMessage.Text, "/unsubscribe"), " ")
-		if usernameFromCommand != "" {
-			*username = usernameFromCommand
-		}
-		if *username == "" {
-			return false
-		}
-		SendMessage("Собираю данные по пользователю: " + *username + ". Ожидайте...", chatId)
-		if message, err := insta.GetUnsubscribedFollowersMessage(*username); err == nil {
+		if message, err := insta.GetScanMessage(*username); err == nil {
 			SendMessage(message, chatId)
 			fmt.Println(message)
 		} else {
