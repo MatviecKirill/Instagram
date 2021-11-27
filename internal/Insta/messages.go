@@ -7,6 +7,42 @@ import (
 
 const instaURL = "https://www.instagram.com/"
 
+func GetScanMessage(targetUserName string) (message string, err error) {
+	if nonMutualUsers, subscribedUsers, unsubscribedUsers, err := getAllStatistics(targetUserName); err == nil {
+		message = "Статистика для пользователя " + targetUserName + ".\n"
+		message = message + "С даты: " + redisDB.Get(targetUserName+"_followers_time") + "\n"
+		message = message + "Подписались: " + strconv.Itoa(len(subscribedUsers)) + ". Отписались: " + strconv.Itoa(len(unsubscribedUsers)) + ".\n"
+
+		if subscribedUsers != nil {
+			message = message + "Список подписавшихся:\n"
+			for i, user := range subscribedUsers {
+				message = message + strconv.Itoa(i+1) + ". " + instaURL + user + "\n"
+			}
+		} else {
+			message = message + "Нет подписавшихся.\n"
+		}
+
+		if unsubscribedUsers != nil {
+			message = message + "Список отписавшихся:\n"
+			for i, user := range unsubscribedUsers {
+				message = message + strconv.Itoa(i+1) + ". " + instaURL + user + "\n"
+			}
+		} else {
+			message = message + "Нет отписавшихся.\n"
+		}
+
+		message = message + "Невзаимные подписки:\n"
+		for i, user := range nonMutualUsers {
+			message = message + strconv.Itoa(i+1) + ". " + user.FullName + " " + instaURL + user.Username + "\n"
+		}
+
+	} else {
+		return "", err
+	}
+	redisDB.Set(targetUserName+"_followers_time", timeMoscow().Format("02.01.2006 15:04"))
+	return message, nil
+}
+
 func GetNonMutualFollowersMessage(targetUserName string) (message string, err error) {
 	if users, err := getNonMutualFollowers(targetUserName); err == nil {
 		message = "Невзаимные подписки для " + targetUserName + ":\n"
