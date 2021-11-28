@@ -13,6 +13,11 @@ func GetScanMessage(targetUserName string) (message string, err error) {
 		message = message + "С даты: " + redisDB.Get(targetUserName+"_followers_time") + "\n"
 		message = message + "Подписались: " + strconv.Itoa(len(subscribedUsers)) + ". Отписались: " + strconv.Itoa(len(unsubscribedUsers)) + ".\n"
 
+		message = message + "\nНевзаимные подписки:\n"
+		for i, user := range nonMutualUsers {
+			message = message + strconv.Itoa(i+1) + ". " + user.FullName + " " + instaURL + user.Username + "\n"
+		}
+
 		if subscribedUsers != nil {
 			message = message + "\nСписок подписавшихся:\n"
 			for i, user := range subscribedUsers {
@@ -30,12 +35,6 @@ func GetScanMessage(targetUserName string) (message string, err error) {
 		} else {
 			message = message + "Нет отписавшихся.\n"
 		}
-
-		message = message + "\nНевзаимные подписки:\n"
-		for i, user := range nonMutualUsers {
-			message = message + strconv.Itoa(i+1) + ". " + user.FullName + " " + instaURL + user.Username + "\n"
-		}
-
 	} else {
 		return "", err
 	}
