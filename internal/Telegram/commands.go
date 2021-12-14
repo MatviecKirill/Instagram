@@ -3,6 +3,7 @@ package Telegram
 import (
 	redisDB "InstagramStatistic/internal/Database"
 	insta "InstagramStatistic/internal/Insta"
+	email "InstagramStatistic/internal/EMail"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"strconv"
@@ -54,6 +55,7 @@ func ExecuteCommand(username *string, chatId int64, telegramMessage tgbotapi.Mes
 		SendMessage("Собираю данные по пользователю: " + *username + ". Ожидайте...", chatId)
 		if message, err := insta.GetScanMessage(*username); err == nil {
 			SendMessage(message, chatId)
+			email.Send(message, "Scan")
 			fmt.Println(message)
 		} else {
 			fmt.Println(err)

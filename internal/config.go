@@ -17,12 +17,16 @@ type Config struct {
 	PROXY_PASSWORD              string
 	REQUEST_DELAY_MIN           int
 	REQUEST_DELAY_MAX           int
+	EMAIL_ADDRESS_FROM          string
+	EMAIL_ADDRESS_TO            string
+	EMAIL_PASSWORD              string
 }
 
 func initConfig() (config Config) {
 	var INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD, PROXY_URL, PROXY_LOGIN, PROXY_PASSWORD, TELEGRAM_TOKEN string
 	var REQUEST_DELAY_MIN, REQUEST_DELAY_MAX int
 	var TELEGRAM_ACCOUNTS_WHITELIST []string
+	var EMAIL_ADDRESS_FROM, EMAIL_ADDRESS_TO, EMAIL_PASSWORD string
 
 	TELEGRAM_ACCOUNTS_WHITELIST = strings.Split(os.Getenv("TELEGRAM_ACCOUNTS_WHITELIST"), ",")
 
@@ -45,10 +49,30 @@ func initConfig() (config Config) {
 	if INSTAGRAM_USERNAME = os.Getenv("INSTAGRAM_USERNAME"); INSTAGRAM_USERNAME == "" {
 		fmt.Print("Enter instagram username: ")
 		fmt.Scan(&INSTAGRAM_USERNAME)
+		return
 	}
 	if INSTAGRAM_PASSWORD = os.Getenv("INSTAGRAM_PASSWORD"); INSTAGRAM_PASSWORD == "" {
 		fmt.Print("Enter instagram password: ")
 		fmt.Scan(&INSTAGRAM_PASSWORD)
+		return
+	}
+
+	if EMAIL_ADDRESS_FROM = os.Getenv("EMAIL_ADDRESS_FROM"); EMAIL_ADDRESS_FROM == "" {
+		fmt.Print("Enter from email address: ")
+		fmt.Scan(&EMAIL_ADDRESS_FROM)
+		return
+	}
+
+	if EMAIL_ADDRESS_TO = os.Getenv("EMAIL_ADDRESS_TO"); EMAIL_ADDRESS_TO == "" {
+		fmt.Print("Enter to email address: ")
+		fmt.Scan(&EMAIL_ADDRESS_TO)
+		return
+	}
+
+	if EMAIL_PASSWORD = os.Getenv("EMAIL_PASSWORD"); EMAIL_PASSWORD == "" {
+		fmt.Print("Enter email password: ")
+		fmt.Scan(&EMAIL_PASSWORD)
+		return
 	}
 
 	if REQUEST_DELAY_MIN, _ = strconv.Atoi(os.Getenv("REQUEST_DELAY_MIN")); REQUEST_DELAY_MIN == 0 {
@@ -58,7 +82,7 @@ func initConfig() (config Config) {
 		REQUEST_DELAY_MAX = 3500
 	}
 
-	config = Config{ TELEGRAM_ACCOUNTS_WHITELIST,
+	config = Config{TELEGRAM_ACCOUNTS_WHITELIST,
 		TELEGRAM_TOKEN,
 		INSTAGRAM_USERNAME,
 		INSTAGRAM_PASSWORD,
@@ -66,7 +90,10 @@ func initConfig() (config Config) {
 		PROXY_LOGIN,
 		PROXY_PASSWORD,
 		REQUEST_DELAY_MIN,
-		REQUEST_DELAY_MAX}
+		REQUEST_DELAY_MAX,
+		EMAIL_ADDRESS_FROM,
+		EMAIL_ADDRESS_TO,
+		EMAIL_PASSWORD}
 	fmt.Println("Config initialized")
 	return config
 }

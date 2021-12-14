@@ -2,6 +2,7 @@ package main
 
 import (
 	redisDB "InstagramStatistic/internal/Database"
+	email "InstagramStatistic/internal/EMail"
 	insta "InstagramStatistic/internal/Insta"
 	telegram "InstagramStatistic/internal/Telegram"
 	"fmt"
@@ -23,6 +24,8 @@ func main() {
 	go startWebServer()
 	config = initConfig()
 	telegramMessageChannel = make(chan tgbotapi.Message)
+
+	email.Init(config.EMAIL_ADDRESS_FROM, config.EMAIL_ADDRESS_TO, config.EMAIL_PASSWORD)
 
 	if err := redisDB.Init(); err == nil {
 		if err := insta.Init(config.INSTAGRAM_USERNAME, config.INSTAGRAM_PASSWORD, config.PROXY_URL, config.PROXY_LOGIN, config.PROXY_PASSWORD, config.REQUEST_DELAY_MIN, config.REQUEST_DELAY_MAX); err == nil {
