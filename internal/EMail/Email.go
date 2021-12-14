@@ -28,7 +28,7 @@ func Init(emailFrom_ string, emailTo_ string, password_ string){
 
 	// This is only needed when SSL/TLS certificate is not valid on server.
 	// In production this should be set to false.
-	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: false}
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 }
 
 func Send(messageText string, messageSubject string){
